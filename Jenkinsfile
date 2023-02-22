@@ -4,6 +4,9 @@ pipeline {
     stage("build"){
       steps{
         echo 'building application...'
+        nodejs('node'){
+          sh 'yarn install'
+        }
       }
     }
     stage("test"){
