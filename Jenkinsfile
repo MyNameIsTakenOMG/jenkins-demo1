@@ -40,7 +40,7 @@ pipeline {
         withCredentials([
           usernamePassword(credentials:'my-demo-pipeline',usernameVariable: USER, passwordVariable: PWD)
         ]){
-          sh "some script ${USER} ${PWD}"
+          echo "some script ${USER} ${PWD}"
         }
       }
     }
