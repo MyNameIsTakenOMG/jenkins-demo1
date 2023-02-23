@@ -2,7 +2,7 @@ pipeline {
   agent any
   environment{
     NEW_VERSION = '1.2.1'
-    SERVER_CREDENTIALS = credentials('server-user')
+    SERVER_CREDENTIALS = credentials('my-demo-pipeline')
   }
   parameters{
     // string(name:'VERSION', defaultValue:'',description:'version to deploy on prod')
@@ -38,7 +38,7 @@ pipeline {
       steps{
         echo 'deploying application...'
         withCredentials([
-          usernamePassword(credentials:'server-user',usernameVariable: USER, passwordVariable: PWD)
+          usernamePassword(credentials:'my-demo-pipeline',usernameVariable: USER, passwordVariable: PWD)
         ]){
           sh "some script ${USER} ${PWD}"
         }
