@@ -1,3 +1,5 @@
+def gv
+
 pipeline {
   agent any
   environment{
@@ -10,6 +12,13 @@ pipeline {
     booleanParam(name:'executeTests',defaultValue:true,description:'')
   }
   stages {
+    stage("init"){
+      steps{
+        script{
+          gv = load "script.groovy"  
+        }
+      }
+    }
     stage("build"){
       when{
         expression{
@@ -17,7 +26,9 @@ pipeline {
         }
       }
       steps{
-        echo 'building application...'
+        script{
+          gv.buildApp()
+        }
         echo "building application ${NEW_VERSION}"
         nodejs('Node'){
           sh 'yarn install'
@@ -37,11 +48,11 @@ pipeline {
     stage("deploy"){
       steps{
         echo 'deploying application...'
-        withCredentials([
-          usernamePassword(credentials:'my-demo-pipeline',usernameVariable: USER, passwordVariable: PWD)
-        ]){
-          echo "some script ${USER} ${PWD}"
-        }
+        // withCredentials([
+        //   usernamePassword(credentials:'my-demo-pipeline',usernameVariable: USER, passwordVariable: PWD)
+        // ]){
+        //   echo "some script ${USER} ${PWD}"
+        // }
       }
     }
   }
