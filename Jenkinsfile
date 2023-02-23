@@ -4,8 +4,18 @@ pipeline {
     NEW_VERSION = '1.2.1'
     SERVER_CREDENTIALS = credentials('server-user')
   }
+  parameters{
+    // string(name:'VERSION', defaultValue:'',description:'version to deploy on prod')
+    choice(name:'VERSION',choices:['1.2.1', '1.2.9'],description:'')
+    booleanParam(name:'executeTests',defaultValue:true,description:'')
+  }
   stages {
     stage("build"){
+      when{
+        expression{
+          params.executeTests
+        }
+      }
       steps{
         echo 'building application...'
         echo "building application ${NEW_VERSION}"
