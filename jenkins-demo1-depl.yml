@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-demo1-deployment
+  labels:
+    app: jenkins-demo1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-demo1
+  template:
+    metadata:
+      labels:
+        app: jenkins-demo1
+    spec:
+      containers:
+      - name: jenkins-demo1
+        image: seanfangdev/jenkins_demo1:v1
+        ports:
+        - containerPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-demo1-service
+spec:
+  selector:
+    app: jenkins-demo1
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
