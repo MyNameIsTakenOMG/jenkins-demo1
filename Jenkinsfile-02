@@ -1,0 +1,52 @@
+def customLabel = "mypod-${UUID.randomUUID().toString()}"
+
+pipeline {
+    agent {
+        label 'built-in'
+    }  
+    stages {
+        stage('pull the code'){
+            steps{
+                echo 'pull the code'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/MyNameIsTakenOMG/jenkins-demo1.git']])
+            }
+        }
+        stage('build & push image') {
+            steps {
+                echo 'Hello World'
+                withCredentials([usernamePassword(credentialsId: 'docker_account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                  // available as an env variable, but will be masked if you try to print it out any which way
+                  // note: single quotes prevent Groovy interpolation; expansion is by Bourne Shell, which is what you want
+                  sh 'echo $PASSWORD'
+                  // also available as a Groovy variable
+                  echo USERNAME
+                  // or inside double quotes for string interpolation
+                  echo "username is $USERNAME"
+                  sh 'docker login -u $USERNAME -p $PASSWORD'
+                  sh 'docker build -t $USERNAME/jenkins_demo1:v1 .'
+                  sh 'docker push $USERNAME/jenkins_demo1:v1'
+                }
+            }
+        }
+    }
+}
+
+podTemplate(label:customLabel,cloud:'kubernetes',containers:[
+        containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.22.16', command: 'cat', ttyEnabled: true)
+    ]){
+    node(customLabel){
+    //   container('jnlp'){
+    //         stage('deploy to k8s'){
+    //             sh 'echo this is jenkins-slave pod'
+    //         }
+    //     }
+        container('kubectl'){
+            stage('run kubectl to deploy to k8s'){
+                sh 'echo this is container jnlp-kubectl'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/MyNameIsTakenOMG/jenkins-demo1.git']])
+                sh 'ls'
+                sh 'kubectl apply -f jenkins-demo1-depl.yml'
+            }
+        }
+    }
+}
